@@ -1,0 +1,11 @@
+{
+  "name": "sudoku",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Static browser Sudoku game with lives and normal modes",
+  "scripts": {
+    "start": "python3 -m http.server -d public 8000",
+    "test": "node --test tests/*.test.mjs"
+  }
+}

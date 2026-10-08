@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f6f7fb">
+  <title>Sudoku</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%234f6bed'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='700'%3E9%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <h1>Sudoku</h1>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="stats-btn" title="Best times" aria-label="Best times">🏆</button>
+        <button class="icon-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle theme">🌓</button>
+      </div>
+    </header>
+
+    <section class="setup">
+      <div class="segmented" role="radiogroup" aria-label="Mode">
+        <button role="radio" data-mode="lives">❤️ Lives</button>
+        <button role="radio" data-mode="normal">✏️ Normal</button>
+      </div>
+      <select id="difficulty" aria-label="Difficulty">
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+        <option value="expert">Expert</option>
+      </select>
+      <button class="primary" id="new-btn">New game</button>
+    </section>
+
+    <section class="status">
+      <span id="difficulty-label" class="pill"></span>
+      <span id="lives" class="lives" aria-label="Lives"></span>
+      <span class="timer-wrap">
+        <span id="timer">00:00</span>
+        <button class="icon-btn small" id="pause-btn" title="Pause" aria-label="Pause"></button>
+      </span>
+    </section>
+
+    <div class="board-wrap">
+      <div id="board" class="board" role="grid" aria-label="Sudoku board"></div>
+      <div id="pause-overlay" class="overlay" hidden>
+        <button class="primary" id="resume-btn">▶ Resume</button>
+      </div>
+    </div>
+
+    <section class="actions">
+      <button class="action" id="undo-btn"><span class="ico">↶</span><span>Undo</span></button>
+      <button class="action" id="erase-btn"><span class="ico">⌫</span><span>Erase</span></button>
+      <button class="action" id="notes-btn" aria-pressed="false"><span class="ico">✎</span><span>Notes <b class="badge">off</b></span></button>
+      <button class="action" id="hint-btn"><span class="ico">💡</span><span>Hint</span></button>
+    </section>
+
+    <section class="actions normal-only">
+      <button class="action wide" id="check-btn"><span class="ico">✔</span><span>Check</span></button>
+      <button class="action wide" id="mistakes-btn" aria-pressed="false"><span class="ico">⚠</span><span>Show mistakes</span></button>
+    </section>
+
+    <section id="numpad" class="numpad" aria-label="Number input"></section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <dialog id="dialog">
+    <form method="dialog">
+      <h2 id="dialog-title"></h2>
+      <div id="dialog-body"></div>
+      <menu id="dialog-buttons"></menu>
+    </form>
+  </dialog>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
