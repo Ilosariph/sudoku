@@ -1,5 +1,6 @@
-// DOM rendering and input handling. Input is pointer/touch only: cells are
-// selected by tapping, digits are entered via the number row.
+// DOM rendering and input handling. Cells are selected by tapping/clicking;
+// digits come from the number row or a physical keyboard. Cells are plain
+// divs (no <input>), so touch devices never open the on-screen keyboard.
 import { DIFFICULTIES, PEERS, rowOf, colOf } from './sudoku.js';
 import { MAX_LIVES } from './game.js';
 
@@ -117,6 +118,36 @@ export class UI {
       this.applyTheme(next);
     });
     $('#stats-btn').addEventListener('click', () => this.showStats());
+
+    document.addEventListener('keydown', (e) => this.handleKey(e));
+  }
+
+  handleKey(e) {
+    if (e.ctrlKey || e.metaKey || e.altKey || $('#dialog').open) return;
+    if (e.target.closest?.('select, input, textarea')) return;
+    if (this.paused || this.selected == null) return;
+
+    const i = this.selected;
+    // e.code covers numpad digits and keyboard layouts where digits need Shift.
+    const m = /^(?:Digit|Numpad)([0-9])$/.exec(e.code) ?? /^([0-9])$/.exec(e.key);
+    const moves = { ArrowUp: [8, 0], ArrowDown: [1, 0], ArrowLeft: [0, 8], ArrowRight: [0, 1] };
+
+    if (m && m[1] !== '0') {
+      this.input(Number(m[1]));
+    } else if (m || e.key === 'Backspace' || e.key === 'Delete') {
+      this.game.erase(i);
+    } else if (e.key in moves) {
+      // Wraps around edges (+8 ≡ -1 mod 9).
+      const [dr, dc] = moves[e.key];
+      this.selected = ((rowOf(i) + dr) % 9) * 9 + (colOf(i) + dc) % 9;
+      this.render();
+    } else if (e.key === 'n' || e.key === 'N') {
+      this.notesMode = !this.notesMode;
+      this.render();
+    } else {
+      return;
+    }
+    e.preventDefault();
   }
 
   applyTheme(theme) {

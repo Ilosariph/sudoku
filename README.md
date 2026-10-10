@@ -8,6 +8,7 @@ Browser Sudoku game. Static site (HTML/CSS/vanilla JS, no build step); puzzle ge
 - **Lives mode**: 3 lives, every input checked instantly. Wrong digits turn red and cost a life; 0 lives → game over (retry or new game). Completing a row, column or 3×3 box plays an animation. A digit placed correctly 9 times shows ✓ in the number row.
 - **Normal mode**: no feedback while typing. *Check* reports only "all correct" / "not all correct"; *Show mistakes* marks wrong cells.
 - **Input** via number row below the board (tap a cell, then a digit). Tapping the same digit again in normal mode clears the cell.
+- **Keyboard** (desktop): click a cell, then type `1`–`9` (top row or numpad). `Backspace`/`Delete`/`0` erase, arrow keys move the selection, `N` toggles notes. No on-screen keyboard is opened on touch devices.
 - **Notes**: toggle *Notes*; digits are laid out as a 3×3 keypad (1 top-left, 5 center, 9 bottom-right). Placing a digit removes it from notes in the same row/column/box.
 - Same-number highlighting (including matching notes), row/column/box highlighting.
 - Undo, erase, hints, timer with pause (auto-pauses when the tab is hidden).
