@@ -58,6 +58,8 @@ export class UI {
     this.board.addEventListener('click', (e) => {
       const cell = e.target.closest('.cell');
       if (!cell || this.paused) return;
+      // Clicking a cell, even the selected one, drops any digit highlight.
+      this.highlight = null;
       this.select(Number(cell.dataset.index));
       this.render();
     });
