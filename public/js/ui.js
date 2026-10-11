@@ -13,6 +13,8 @@ export class UI {
   constructor(game) {
     this.game = game;
     this.selected = null;
+    // Lives mode: digit pressed on a locked cell, highlighted board-wide.
+    this.highlight = null;
     this.notesMode = false;
     this.paused = false;
     this.cells = [];
@@ -56,8 +58,7 @@ export class UI {
     this.board.addEventListener('click', (e) => {
       const cell = e.target.closest('.cell');
       if (!cell || this.paused) return;
-      const i = Number(cell.dataset.index);
-      this.selected = i;
+      this.select(Number(cell.dataset.index));
       this.render();
     });
   }
@@ -93,7 +94,7 @@ export class UI {
     });
     $('#hint-btn').addEventListener('click', () => {
       const i = this.game.hint(this.selected);
-      if (i != null) this.selected = i;
+      if (i != null) this.select(i);
       this.render();
     });
     $('#check-btn').addEventListener('click', () => this.check());
@@ -139,7 +140,7 @@ export class UI {
     } else if (e.key in moves) {
       // Wraps around edges (+8 ≡ -1 mod 9).
       const [dr, dc] = moves[e.key];
-      this.selected = ((rowOf(i) + dr) % 9) * 9 + (colOf(i) + dc) % 9;
+      this.select(((rowOf(i) + dr) % 9) * 9 + (colOf(i) + dc) % 9);
       this.render();
     } else if (e.key === 'n' || e.key === 'N') {
       this.notesMode = !this.notesMode;
@@ -155,6 +156,11 @@ export class UI {
   }
 
   // ---------- Actions ----------
+
+  select(i) {
+    if (i !== this.selected) this.highlight = null;
+    this.selected = i;
+  }
 
   async changeSetup(mode, difficulty, force = false) {
     const s = this.game.s;
@@ -174,6 +180,13 @@ export class UI {
   input(v) {
     if (this.selected == null || this.paused) {
       if (this.selected == null) this.toast('Select a cell first');
+      return;
+    }
+    // A locked cell can't change, so in lives mode the digit highlights its
+    // matches instead; pressing it again turns the highlight off.
+    if (this.game.s.mode === 'lives' && this.game.isLocked(this.selected)) {
+      this.highlight = this.highlight === v ? null : v;
+      this.render();
       return;
     }
     if (this.notesMode) this.game.toggleNote(this.selected, v);
@@ -210,6 +223,7 @@ export class UI {
 
   handleEvent(e) {
     const s = this.game.s;
+    if (e.type === 'new' || s.status !== 'playing') this.highlight = null;
     if (e.type === 'new') {
       this.selected = null;
       this.paused = false;
@@ -242,7 +256,7 @@ export class UI {
 
   async victory() {
     const s = this.game.s;
-    this.selected = null;
+    this.select(null);
     this.render();
     this.flash([...Array(81).keys()], (i) => (rowOf(i) + colOf(i)) * 40);
     await wait(900);
@@ -312,7 +326,7 @@ export class UI {
     this.renderTimer();
 
     const sel = this.selected;
-    const selValue = sel != null ? s.values[sel] : 0;
+    const selValue = this.highlight ?? (sel != null ? s.values[sel] : 0);
     const related = new Set(sel != null ? PEERS[sel] : []);
     const shown = new Set(s.shownMistakes);
 
