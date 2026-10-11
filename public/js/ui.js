@@ -128,12 +128,15 @@ export class UI {
   handleKey(e) {
     if (e.ctrlKey || e.metaKey || e.altKey || $('#dialog').open) return;
     if (e.target.closest?.('select, input, textarea')) return;
-    if (this.paused || this.selected == null) return;
+    if (this.paused) return;
 
     const i = this.selected;
     // e.code covers numpad digits and keyboard layouts where digits need Shift.
     const m = /^(?:Digit|Numpad)([0-9])$/.exec(e.code) ?? /^([0-9])$/.exec(e.key);
     const moves = { ArrowUp: [8, 0], ArrowDown: [1, 0], ArrowLeft: [0, 8], ArrowRight: [0, 1] };
+
+    // With nothing selected, digits only switch an active highlight.
+    if (i == null && !(this.highlight && m && m[1] !== '0')) return;
 
     if (m && m[1] !== '0') {
       this.input(Number(m[1]));
@@ -180,15 +183,19 @@ export class UI {
   }
 
   input(v) {
-    if (this.selected == null || this.paused) {
-      if (this.selected == null) this.toast('Select a cell first');
+    if (this.paused) return;
+    // A locked cell can't change, so in lives mode the digit highlights its
+    // matches instead and the cell is deselected. Pressing the highlighted
+    // digit again turns it off; another digit switches to that one.
+    const locked = this.selected != null && this.game.s.mode === 'lives' && this.game.isLocked(this.selected);
+    if (locked || (this.selected == null && this.highlight)) {
+      this.highlight = this.highlight === v ? null : v;
+      this.selected = null;
+      this.render();
       return;
     }
-    // A locked cell can't change, so in lives mode the digit highlights its
-    // matches instead; pressing it again turns the highlight off.
-    if (this.game.s.mode === 'lives' && this.game.isLocked(this.selected)) {
-      this.highlight = this.highlight === v ? null : v;
-      this.render();
+    if (this.selected == null) {
+      this.toast('Select a cell first');
       return;
     }
     if (this.notesMode) this.game.toggleNote(this.selected, v);
