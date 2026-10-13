@@ -3,25 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f6f7fb">
+  <meta name="theme-color" content="#f5f0e8">
   <title>Sudoku</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%234f6bed'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='700'%3E9%3C/text%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23c45d3e'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='700'%3E9%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,400;9..144,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <main class="app">
     <header class="topbar">
-      <h1>Sudoku</h1>
+      <h1>Su<span>doku</span></h1>
       <div class="topbar-actions">
-        <button class="icon-btn" id="stats-btn" title="Best times" aria-label="Best times">🏆</button>
-        <button class="icon-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle theme">🌓</button>
+        <button class="icon-btn" id="stats-btn" title="Best times" aria-label="Best times">&#9733;</button>
+        <button class="icon-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle theme">&#9790;</button>
       </div>
     </header>
 
     <section class="setup">
       <div class="segmented" role="radiogroup" aria-label="Mode">
-        <button role="radio" data-mode="lives">❤️ Lives</button>
-        <button role="radio" data-mode="normal">✏️ Normal</button>
+        <button role="radio" data-mode="lives">&#9829; Lives</button>
+        <button role="radio" data-mode="normal">&#9998; Normal</button>
       </div>
       <select id="difficulty" aria-label="Difficulty">
         <option value="easy">Easy</option>
@@ -52,7 +54,7 @@
       <button class="action" id="undo-btn"><span class="ico">↶</span><span>Undo</span></button>
       <button class="action" id="erase-btn"><span class="ico">⌫</span><span>Erase</span></button>
       <button class="action" id="notes-btn" aria-pressed="false"><span class="ico">✎</span><span>Notes <b class="badge">off</b></span></button>
-      <button class="action" id="hint-btn"><span class="ico">💡</span><span>Hint</span></button>
+      <button class="action" id="hint-btn"><span class="ico">?</span><span>Hint</span></button>
     </section>
 
     <section class="actions normal-only">

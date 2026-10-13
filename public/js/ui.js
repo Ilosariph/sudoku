@@ -325,7 +325,7 @@ export class UI {
     const lives = $('#lives');
     lives.hidden = s.mode !== 'lives';
     if (lives.children.length !== MAX_LIVES) {
-      lives.innerHTML = '<span>❤️</span>'.repeat(MAX_LIVES);
+      lives.innerHTML = '<span>&#9829;</span>'.repeat(MAX_LIVES);
     }
     [...lives.children].forEach((h, k) => h.classList.toggle('lost', k >= s.lives));
 
