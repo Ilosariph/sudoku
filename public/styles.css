@@ -386,6 +386,40 @@ select {
 .num.done:disabled { opacity: 0.8; }
 .app.notes-on .num { color: var(--muted); border-style: dashed; }
 
+/* ---------- Scan ---------- */
+
+.app[hidden] { display: none; }
+
+.secondary {
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  transition: border-color 0.15s;
+}
+
+.secondary:hover { border-color: var(--accent); }
+
+.file-btn { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.scan-view .file-btn { flex: 1; justify-content: center; }
+
+.scan-photo { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.scan-photo[hidden] { display: none; }
+.scan-photo canvas { touch-action: none; border-radius: var(--radius); max-width: 100%; }
+
+.scan-hint { margin: 0; font-size: 0.8rem; color: var(--muted); text-align: center; }
+.scan-hint[hidden] { display: none; }
+
+.scan-status { margin: 0; min-height: 1.2em; font-size: 0.85rem; text-align: center; }
+.scan-status.good { color: var(--success); }
+.scan-status.bad { color: var(--wrong); }
+
+.scan-view .cell.unsure { outline: 2px dotted var(--accent); outline-offset: -4px; }
+.scan-view .num { aspect-ratio: 1; }
+
+.start-btn { padding: 12px; font-size: 1rem; }
+
 /* ---------- Toast & dialog ---------- */
 
 .toast {

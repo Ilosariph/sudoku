@@ -5,6 +5,7 @@ import { DIFFICULTIES, PEERS, rowOf, colOf } from './sudoku.js';
 import { MAX_LIVES } from './game.js';
 
 const $ = (sel) => document.querySelector(sel);
+const LEVELS = { ...Object.fromEntries(Object.entries(DIFFICULTIES).map(([k, d]) => [k, d.label])), scanned: 'Scanned' };
 const THEME_KEY = 'sudoku.theme';
 const ICON_PAUSE = '<svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><rect x="2" y="1" width="3" height="10" rx="1"/><rect x="7" y="1" width="3" height="10" rx="1"/></svg>';
 const ICON_PLAY = '<svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M3 1.5v9a.5.5 0 0 0 .77.42l7-4.5a.5.5 0 0 0 0-.84l-7-4.5A.5.5 0 0 0 3 1.5z"/></svg>';
@@ -126,7 +127,7 @@ export class UI {
   }
 
   handleKey(e) {
-    if (e.ctrlKey || e.metaKey || e.altKey || $('#dialog').open) return;
+    if (e.ctrlKey || e.metaKey || e.altKey || $('#dialog').open || this.app.hidden) return;
     if (e.target.closest?.('select, input, textarea')) return;
     if (this.paused) return;
 
@@ -170,6 +171,14 @@ export class UI {
   async changeSetup(mode, difficulty, force = false) {
     const s = this.game.s;
     if (!force && mode === s.mode && difficulty === s.difficulty) return;
+    // A scanned puzzle restarts in the other mode; lives needs its one solution.
+    const switchScanned = !force && difficulty === 'scanned';
+    if (switchScanned && mode === 'lives' && !s.solution) {
+      this.toast('Lives mode needs a puzzle with exactly one solution');
+      this.render();
+      return;
+    }
+    if (force && difficulty === 'scanned') difficulty = 'medium';
     const inProgress = s.status === 'playing' && s.values.some((v, i) => v && !s.puzzle[i]);
     if (inProgress) {
       const ok = await this.dialog({
@@ -179,7 +188,8 @@ export class UI {
       });
       if (ok !== 'yes') { this.render(); return; }
     }
-    this.game.newGame(mode, difficulty);
+    if (switchScanned) this.game.restart(mode);
+    else this.game.newGame(mode, difficulty);
   }
 
   input(v) {
@@ -272,7 +282,7 @@ export class UI {
     const res = await this.dialog({
       title: 'You solved it! 🎉',
       body: `
-        <p>${DIFFICULTIES[s.difficulty].label} · ${s.mode === 'lives' ? 'Lives' : 'Normal'} mode</p>
+        <p>${LEVELS[s.difficulty]} · ${s.mode === 'lives' ? 'Lives' : 'Normal'} mode</p>
         <table class="stats">
           <tr><th>Time</th><td>${formatTime(s.elapsed)}${s.newBest ? ' 🏆 new best!' : ''}</td></tr>
           ${s.mode === 'lives' ? `<tr><th>Mistakes</th><td>${s.mistakes}</td></tr>` : ''}
@@ -280,7 +290,7 @@ export class UI {
         </table>`,
       buttons: [{ label: 'Close', value: 'close' }, { label: 'New game', value: 'new', primary: true }],
     });
-    if (res === 'new') this.game.newGame(s.mode, s.difficulty);
+    if (res === 'new') this.changeSetup(s.mode, s.difficulty, true);
   }
 
   async gameOver() {
@@ -291,13 +301,13 @@ export class UI {
       buttons: [{ label: 'Retry puzzle', value: 'retry' }, { label: 'New game', value: 'new', primary: true }],
     });
     if (res === 'retry') this.game.restart();
-    else if (res === 'new') this.game.newGame(s.mode, s.difficulty);
+    else if (res === 'new') this.changeSetup(s.mode, s.difficulty, true);
   }
 
   async showStats() {
     const best = this.game.bestTimes();
-    const rows = Object.entries(DIFFICULTIES).map(([key, d]) => `
-      <tr><th>${d.label}</th>
+    const rows = Object.entries(LEVELS).map(([key, label]) => `
+      <tr><th>${label}</th>
         <td>${best[`lives.${key}`] ? formatTime(best[`lives.${key}`]) : '–'}</td>
         <td>${best[`normal.${key}`] ? formatTime(best[`normal.${key}`]) : '–'}</td></tr>`).join('');
     await this.dialog({
@@ -320,7 +330,7 @@ export class UI {
       b.setAttribute('aria-checked', String(b.dataset.mode === s.mode));
     });
     $('#difficulty').value = s.difficulty;
-    $('#difficulty-label').textContent = DIFFICULTIES[s.difficulty].label;
+    $('#difficulty-label').textContent = LEVELS[s.difficulty];
 
     const lives = $('#lives');
     lives.hidden = s.mode !== 'lives';
@@ -378,7 +388,7 @@ export class UI {
     notesBtn.querySelector('.badge').textContent = this.notesMode ? 'on' : 'off';
     $('#undo-btn').disabled = !playing || s.history.length === 0;
     $('#erase-btn').disabled = !playing;
-    $('#hint-btn').disabled = !playing;
+    $('#hint-btn').disabled = !playing || !g.canHint();
     $('#check-btn').disabled = !playing;
     $('#mistakes-btn').disabled = !playing;
     $('#mistakes-btn').setAttribute('aria-pressed', String(s.shownMistakes.length > 0));

@@ -15,6 +15,7 @@
     <header class="topbar">
       <h1>Su<span>doku</span></h1>
       <div class="topbar-actions">
+        <button class="icon-btn" id="scan-btn" title="Scan a puzzle from a photo" aria-label="Scan a puzzle from a photo"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 8a2 2 0 0 1 2-2h2.5l1.5-2h6l1.5 2H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
         <button class="icon-btn" id="stats-btn" title="Best times" aria-label="Best times">&#9733;</button>
         <button class="icon-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle theme">&#9790;</button>
       </div>
@@ -30,6 +31,7 @@
         <option value="medium">Medium</option>
         <option value="hard">Hard</option>
         <option value="expert">Expert</option>
+        <option value="scanned" hidden>Scanned</option>
       </select>
       <button class="primary" id="new-btn">New game</button>
     </section>
@@ -63,6 +65,44 @@
     </section>
 
     <section id="numpad" class="numpad" aria-label="Number input"></section>
+  </main>
+
+  <main class="app scan-view" id="scan-view" hidden>
+    <header class="topbar">
+      <h1>Scan<span> puzzle</span></h1>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="scan-close" title="Back to game" aria-label="Back to game">&#10005;</button>
+      </div>
+    </header>
+
+    <section class="setup">
+      <label class="primary file-btn">&#128247; Take photo
+        <input type="file" id="scan-camera" accept="image/*" capture="environment" hidden>
+      </label>
+      <label class="secondary file-btn">&#128444; Choose image
+        <input type="file" id="scan-file" accept="image/*" hidden>
+      </label>
+    </section>
+
+    <div class="scan-photo" id="scan-photo" hidden>
+      <canvas id="scan-canvas"></canvas>
+      <p class="scan-hint">Drag the corners onto the outer edge of the grid if they're off.</p>
+    </div>
+
+    <p class="scan-hint" id="scan-intro">Take a photo of a printed sudoku, or type the digits in below. Fix any misread digits before you start.</p>
+
+    <div id="scan-board" class="board" role="grid" aria-label="Scanned puzzle"></div>
+
+    <p class="scan-status" id="scan-status" role="status"></p>
+
+    <section id="scan-numpad" class="numpad" aria-label="Number input"></section>
+
+    <section class="actions">
+      <button class="action wide" id="scan-erase"><span class="ico">&#9003;</span><span>Erase</span></button>
+      <button class="action wide" id="scan-clear"><span class="ico">&#8635;</span><span>Clear all</span></button>
+    </section>
+
+    <button class="primary start-btn" id="scan-start" disabled>Start</button>
   </main>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>

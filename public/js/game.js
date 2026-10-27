@@ -35,9 +35,31 @@ export class Game {
     });
   }
 
-  restart() {
+  // Starts a puzzle from outside the generator (a scan). `solution` is null
+  // when the puzzle has no unique solution; it is then played in normal mode
+  // and checked against the rules instead.
+  newCustom(mode, puzzle, solution) {
+    this.load({
+      mode,
+      difficulty: 'scanned',
+      puzzle,
+      solution,
+      values: puzzle.slice(),
+      notes: new Array(81).fill(0),
+      lives: MAX_LIVES,
+      mistakes: 0,
+      hints: 0,
+      elapsed: 0,
+      status: 'playing',
+      history: [],
+      shownMistakes: [],
+    });
+  }
+
+  restart(mode = this.state.mode) {
     this.load({
       ...this.state,
+      mode,
       values: this.state.puzzle.slice(),
       notes: new Array(81).fill(0),
       lives: MAX_LIVES,
@@ -57,7 +79,13 @@ export class Game {
 
   get s() { return this.state; }
   isGiven(i) { return this.s.puzzle[i] !== 0; }
-  isCorrect(i) { return this.s.values[i] === this.s.solution[i]; }
+  // Without a known solution a digit counts as correct while no peer has it.
+  isCorrect(i) {
+    const { values, solution } = this.s;
+    if (solution) return values[i] === solution[i];
+    return values[i] !== 0 && PEERS[i].every((p) => values[p] !== values[i]);
+  }
+  canHint() { return !!this.s.solution; }
   isPlaying() { return this.s.status === 'playing'; }
 
   // In lives mode correct entries are locked, as they are known to be right.
@@ -109,7 +137,7 @@ export class Game {
     s.values[i] = v;
     s.notes[i] = 0;
     this.clearShownMistake(i);
-    const correct = v === s.solution[i];
+    const correct = this.isCorrect(i);
 
     if (s.mode === 'lives' && !correct) {
       s.lives--;
@@ -146,7 +174,7 @@ export class Game {
 
   // Fills the given cell (or a random empty/wrong one) with the correct digit.
   hint(i) {
-    if (!this.isPlaying()) return null;
+    if (!this.isPlaying() || !this.canHint()) return null;
     const s = this.s;
     const open = (k) => !this.isGiven(k) && !this.isCorrect(k);
     if (i == null || !open(i)) {
@@ -174,7 +202,7 @@ export class Game {
   }
 
   isSolved() {
-    return this.s.values.every((v, i) => v === this.s.solution[i]);
+    return this.s.values.every((v, i) => v !== 0 && this.isCorrect(i));
   }
 
   // Normal mode "Check": are all filled cells correct?
@@ -188,7 +216,7 @@ export class Game {
   wrongCells() {
     const out = [];
     for (let i = 0; i < 81; i++) {
-      if (this.s.values[i] && !this.isCorrect(i)) out.push(i);
+      if (this.s.values[i] && !this.isGiven(i) && !this.isCorrect(i)) out.push(i);
     }
     return out;
   }
